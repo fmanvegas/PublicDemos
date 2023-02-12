@@ -1,0 +1,16 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/C#/CRUD_App/SuperHeroTests/bin/Debug/net7.0-windows
+/C#/CRUD_App/SuperheroDatabaseCreator/obj
+/C#/CRUD_App/.vs
+*.dll
+*.pdb
+/C#/CRUD_App/Common/obj
+/C#/CRUD_App/Common/bin/Debug/net7.0-windows
+/C#/CRUD_App/CRUD_App/bin/Debug/net7.0-windows
+/C#/CRUD_App/CRUD_App/obj
+/C#/CRUD_App/SuperheroDatabaseCreator/bin/Debug
+/C#/CRUD_App/SuperHeroTests/obj
+/C#/CRUD_App/TestResults/50400c6a-bdc6-4056-9791-260d0ca469dc
