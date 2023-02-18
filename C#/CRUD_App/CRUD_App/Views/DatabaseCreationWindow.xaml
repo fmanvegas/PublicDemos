@@ -1,0 +1,120 @@
+﻿<Window x:Class="CRUD_App.Views.DatabaseCreationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:db="clr-namespace:CRUD_App.DatabaseItems.Controllers"
+        xmlns:local="clr-namespace:CRUD_App"
+        WindowStyle="None" WindowStartupLocation="CenterOwner"
+        AllowsTransparency="True"
+        Background="Transparent"
+        mc:Ignorable="d"
+        Topmost="True"
+        Title="SuperHero Database Creator" SizeToContent="WidthAndHeight">
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+    <Border BorderThickness="0" CornerRadius="10">        
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0.5 0" EndPoint="0.5 1">
+                <GradientStop Color="SlateGray" Offset="0"/>
+                <GradientStop Color="Silver" Offset="0.3"/>
+                <GradientStop Color="Silver" Offset="0.70"/>
+                <GradientStop Color="SlateGray" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        
+        <Grid DataContext="{Binding DB}"
+          >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Border BorderBrush="DimGray" BorderThickness="2" CornerRadius="5" Padding="1 5" Margin="10 5">
+                <TextBlock TextAlignment="Center">
+            <Run Text="Press"/>
+            <Run Text="[BEGIN]" Background="LightGreen" FontWeight="Bold" FontSize="16" FontFamily="Verdana"/>
+            <Run Text="to create a new database"/>
+            <LineBreak/>
+            <Run Text="This will create a local database"/>
+            <Run Text="SuperHero.db3" Foreground="Red" FontWeight="Bold"/>
+            <LineBreak/>
+            <Run Text="via SQLite for the CRUD actions"/>
+                </TextBlock>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="20 10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Database Health:"/>
+                    <Ellipse Width="15" Height="15" Grid.Column="1" Stroke="Black" Margin="10 0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="Gray"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DBCreator.Properties.State}" Value="Idle">
+                                        <Setter Property="Fill" Value="LightBlue"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding DBCreator.Properties.State}" Value="Processing">
+                                        <Setter Property="Fill" Value="Yellow"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding DBCreator.Properties.State}" Value="Finished">
+                                        <Setter Property="Fill" Value="Lime"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding DBCreator.Properties.State}" Value="Error">
+                                        <Setter Property="Fill" Value="Red"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                </Grid>
+
+
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="State:"/>
+                    <TextBlock Text="{Binding DBCreator.Properties.State}" Grid.Column="1"/>
+                </Grid>
+
+
+            </Grid>
+
+            <Grid Grid.Row="2" Grid.IsSharedSizeScope="True" Margin="10 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" SharedSizeGroup="CLM_BTN"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto" SharedSizeGroup="CLM_BTN"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="BEGIN" Padding="15 0" Background="LightGreen"
+                    IsDefault="True"
+                    Command="{Binding CreateDatabaseCommand}"/>
+
+                <ProgressBar Grid.Column="1" BorderThickness="0"
+                             Background="Transparent"
+                             Value="{Binding DBCreator.Properties.Current}" 
+                             Maximum="{Binding DBCreator.Properties.Maximum}"/>
+
+                <Button Grid.Column="2" Content="CLOSE" Background="LightPink"                    
+                        IsCancel="True"                    
+                        Click="BtnClose_Click"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
