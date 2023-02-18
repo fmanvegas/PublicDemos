@@ -51,7 +51,11 @@
                     throw new Exception("Could not read SuperHero Data");
 
                 SqliteDataAccess sqliteDataAccess = new($"{GetOperatingPath()}\\SuperHeroDB.db3");
-                await sqliteDataAccess.CreateMainTable();
+                if (!await sqliteDataAccess.CreateMainTable())
+                {
+                    Properties.ErrorMessage = sqliteDataAccess.ErrorMessage;
+                    return false;
+                }
 
                 Properties.Maximum = data.Count();
 

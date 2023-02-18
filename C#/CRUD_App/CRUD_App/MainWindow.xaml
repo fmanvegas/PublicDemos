@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CRUD_App"
-        mc:Ignorable="d"
+        xmlns:views="clr-namespace:CRUD_App.Views"
+        mc:Ignorable="d" x:Name="root" Height="500"
         Loaded="Window_Loaded"
-        Title="MainWindow" SizeToContent="WidthAndHeight">
+        Title="MainWindow" SizeToContent="Width">
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
@@ -19,161 +20,148 @@
         </LinearGradientBrush>
     </Window.Background>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Header="Super Heroes">
+            <!--Left side search box-->
+            <GroupBox Header="Super Heroes" Foreground="WhiteSmoke" BorderThickness="0 0 1 0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <GroupBox Header="Filter">
+                    <GroupBox BorderThickness="0">
+                        <GroupBox.Header>
+                            <TextBlock>
+                                <Run Text="Filter" FontSize="16"/>
+                                <Run Text="(Name or Identity)" Foreground="Gray" FontSize="12" FontStyle="Italic"/>
+                            </TextBlock>
+                        </GroupBox.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox Text="{Binding DB.FilterText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <Button Grid.Column="1" Content="clear" Background="Transparent" BorderBrush="Transparent" Foreground="Yellow"
+                            <Button Grid.Column="1" Content="x" Padding="3 0" Background="Transparent" BorderBrush="Transparent" Foreground="Yellow"
                                     Command="{Binding DB.ClearFilterCommand}"/>
                         </Grid>
                     </GroupBox>
 
                     <ListBox x:Name="LstSuperHeroes" Grid.Row="1" BorderThickness="0" 
-                             Width="200" Height="300"
-                             ItemsSource="{Binding DB.SuperHeroes}"/>
+                             MinWidth="200" Background="Transparent"
+                             HorizontalContentAlignment="Stretch"
+                             ItemsSource="{Binding DB.SuperHeroes}" d:ItemsSource="{d:SampleData ItemCount=5}"
+                             SelectedItem="{Binding DB.SelectedSuperHero}">
+                        <ListBox.Resources>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                                <Setter Property="BorderBrush" Value="Red"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border BorderThickness="1" CornerRadius="5 0 0 5">
+                                                <Border.BorderBrush>
+                                                    <LinearGradientBrush StartPoint="0 0.5" EndPoint="1 0.5">
+                                                        <GradientStop Color="Gray" Offset="0"/>
+                                                        <GradientStop Color="Transparent" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.BorderBrush>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <!--Name / Identity-->
+                                                    <Grid Margin="5 5 0 5">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition/>
+                                                            <RowDefinition Height="auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Text="{Binding Name}" FontSize="16"/>
+                                                        <TextBlock Text="{Binding Identity}" FontSize="10" FontStyle="Italic" Grid.Row="1" Visibility="{Binding Identity, Converter={StaticResource ValToVisConvert}}"/>
+                                                    </Grid>
+                                                    
+                                                    <!--Strength / Intelligence-->
+                                                    <Grid Grid.Column="1">                                                      
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <ProgressBar Background="Transparent" BorderThickness="0" Minimum="0" Maximum="100" Value="{Binding Intelligence, Converter={StaticResource IntConvert}}" Height="5" Width="50">
+                                                            <ProgressBar.RenderTransform>
+                                                                <RotateTransform CenterX="50" CenterY="10" Angle="270"/>
+                                                            </ProgressBar.RenderTransform>
+                                                        </ProgressBar>
+                                                        <ProgressBar Background="Transparent" BorderThickness="0" Minimum="0" Maximum="100" Value="{Binding Strength, Converter={StaticResource StrConvert}}" Height="5" Width="50" Margin="20 0 0 0">
+                                                            <ProgressBar.RenderTransform>
+                                                                <RotateTransform CenterX="50" CenterY="10" Angle="270"/>
+                                                            </ProgressBar.RenderTransform>
+                                                        </ProgressBar>
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Foreground" Value="Yellow"/>
+                                        <Setter Property="BorderBrush" Value="Yellow"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.Resources>
+                        
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="1" CornerRadius="5 0 0 5">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0 0.5" EndPoint="1 0.5">
+                                            <GradientStop Color="Gray" Offset="0"/>
+                                            <GradientStop Color="Transparent" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <Grid Margin="5 5 0 5">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding Name}" FontSize="16"/>
+                                        <TextBlock Text="{Binding Identity}" 
+                                                   Visibility="{Binding Identity,Converter={StaticResource ValToVisConvert}}"
+                                                   FontSize="10" FontStyle="Italic" Grid.Row="1"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
             </GroupBox>
 
-            <Border Grid.Column="1" CornerRadius="5" Margin="5,5,5,5"
-                    DataContext="{Binding ElementName=LstSuperHeroes, Path=SelectedItem}">
-
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <!--Large SuperHero Name Header-->
-                    <Grid Margin="10 0 0 0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="auto" />
-                        </Grid.RowDefinitions>
-
-                        <Border CornerRadius="20" Grid.RowSpan="2" Background="Black" Margin="0 5 0 0"/>
-
-                        <Grid HorizontalAlignment="Center">
-                            <TextBlock Padding="10 5 10 0" Foreground="Yellow" FontSize="50" FontFamily="Bernard MT Condensed" MaxWidth="320" TextWrapping="WrapWithOverflow" TextAlignment="Center">
-                            <Run Text="{Binding Name, FallbackValue=Frank, Mode=OneWay}"/>
-                                <TextBlock.Effect>
-                                    <DropShadowEffect BlurRadius="1" Opacity="0.4" Color="Orange"/>
-                                </TextBlock.Effect>
-                            </TextBlock>
-                            <TextBlock Text="TM" Foreground="Yellow" HorizontalAlignment="Right"  FontFamily="Verdana"/>
-                        </Grid>
-
-                        <TextBlock Grid.Row="1" TextAlignment="Center" Foreground="Red">
-                            <Run Text="Real Name:" FontSize="10" Foreground="Gray"/>
-                            <LineBreak/>
-                            <Run Text="{Binding Identity, Mode=OneWay}" FontSize="15"/>
-                        </TextBlock>
-                    </Grid>
-
-                    <!--SuperHero Details-->
-                    <Grid Grid.Row="1" HorizontalAlignment="Center" Grid.IsSharedSizeScope="True">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-
-                        <Border Grid.Row="1" Grid.ColumnSpan="2" CornerRadius="20">
-                            <Border.Background>
-                                <LinearGradientBrush>
-                                    <GradientStop Color="Black" Offset="0"/>
-                                    <GradientStop Color="#33000000" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-
-
-                        <Grid Margin="5 0">
-                            <Grid.Resources>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="Yellow"/>
-                                    <Setter Property="TextAlignment" Value="Right"/>
-                                    <Setter Property="FontSize" Value="17"/>
-                                </Style>
-                            </Grid.Resources>
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition SharedSizeGroup="R1"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R2"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R3"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R4"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R5"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R6"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R7"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R8"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R9"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R10"  Height="auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Text="BirthPlace:"/>
-                            <TextBlock Grid.Row="1" Text="Publisher:"/>
-                            <TextBlock Grid.Row="2" Text="Height:"/>
-                            <TextBlock Grid.Row="3" Text="Weight:"/>
-                            <TextBlock Grid.Row="4" Text="Gender:"/>
-                            <TextBlock Grid.Row="5" Text="Appearance:"/>
-                            <TextBlock Grid.Row="6" Text="Eye:"/>
-                            <TextBlock Grid.Row="7" Text="Hair:"/>
-                            <TextBlock Grid.Row="8" Text="Strength:"/>
-                            <TextBlock Grid.Row="9" Text="Intelligence:"/>
-                        </Grid>
-
-                        <Grid Grid.Column="1">
-                            <Grid.Resources>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="White"/>
-                                    <Setter Property="TextAlignment" Value="Left"/>
-                                    <Setter Property="FontSize" Value="17"/>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.RowDefinitions>
-                                <RowDefinition SharedSizeGroup="R1"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R2"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R3"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R4"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R5"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R6"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R7"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R8"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R9"  Height="auto"/>
-                                <RowDefinition SharedSizeGroup="R10"  Height="auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Text="{Binding BirthPlace, Mode=OneWay}" TextWrapping="Wrap" MaxWidth="150"/>
-                            <TextBlock Grid.Row="1" Text="{Binding Publisher, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="2" Text="{Binding Height, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="3" Text="{Binding Weight, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="4" Text="{Binding Gender, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="5" Text="{Binding Appearance, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="6" Text="{Binding Eye, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="7" Text="{Binding Hair, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="8" Text="{Binding Strength, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="9" Text="{Binding Intelligence, Mode=OneWay}"/>
-                        </Grid>
-
-                    </Grid>
-                </Grid>
+            <!--Right side display-->
+            <Border Grid.Column="1" CornerRadius="5" Margin="5,5,5,5">
+                <views:SuperHeroViewControl DataContext="{Binding DB}"/>
             </Border>
         </Grid>
 
+        <StatusBar Grid.Row="1">
+            <StatusBarItem>
+                <TextBlock Text="{Binding DB.Message}"/>
+            </StatusBarItem>
+        </StatusBar>
 
     </Grid>
 </Window>

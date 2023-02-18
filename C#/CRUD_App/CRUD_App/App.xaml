@@ -1,9 +1,11 @@
 ﻿<Application x:Class="CRUD_App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:CRUD_App"
+             xmlns:converters="clr-namespace:CRUD_App.Converters"
              Startup="Application_Startup">
     <Application.Resources>
-         
+        <converters:ValueToVisibilityConverter x:Key="ValToVisConvert"/>
+        <converters:StrengthToValueConverter x:Key="StrConvert"/>
+        <converters:IntelligenceToValueConverter x:Key="IntConvert"/>
     </Application.Resources>
 </Application>

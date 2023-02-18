@@ -12,4 +12,8 @@
     <ProjectReference Include="..\SuperheroDatabaseCreator\SuperheroDatabaseCreator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Misc\StaticCommands\" />
+  </ItemGroup>
+
 </Project>

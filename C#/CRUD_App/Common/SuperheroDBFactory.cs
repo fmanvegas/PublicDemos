@@ -44,7 +44,10 @@ namespace Common
             return result;
         }
         private static List<string> SplitNormal(string data) => data.Split(',').ToList();
+
+
+
     }
 
-    
+
 }

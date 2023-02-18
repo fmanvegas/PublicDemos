@@ -16,7 +16,11 @@ namespace SuperheroDatabaseCreator
             connectionString = string.Format(connConstructor, locationToDB);
             dbConnection = new SqliteConnection(connectionString);
             dbConnection.Open();
+
+            ErrorMessage = string.Empty;
         }
+
+        public string ErrorMessage { get; set; } 
 
         public async Task ExecuteSQLAsync(string sql)
         {
@@ -31,16 +35,32 @@ namespace SuperheroDatabaseCreator
         }
         public async Task<bool> CreateMainTable()
         {
-            await ExecuteSQLAsync(CREATE);
+            try
+            {
+                await ExecuteSQLAsync(SuperHeroDatabaseBroker.CREATE);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                return false;
+            }
 
             return true;
         }
 
+        /// <summary>
+        /// Given a full list of what to insert, put the valid entries into the database.
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="progress"></param>
+        /// <returns></returns>
         internal async Task<bool> InsertBaseData(IEnumerable<string> data, IProgress<int> progress)
         {
-            bool toReturn = false;
+            bool toReturn = true;
 
-            int maxValueToGrab = 100;
+            //This can go up to 999, but happens so fast the user can't see he progress.
+            int maxValueToGrab = 200;
 
             await Task.Run(async () =>
             {
@@ -48,34 +68,36 @@ namespace SuperheroDatabaseCreator
                 {
                     for (int indx = 0; indx < data.Count();)
                     {
+                        //Grab either 200, or whatever is remaining
                         int amountToGrab = indx < data.Count() - maxValueToGrab ? maxValueToGrab : data.Count() - indx;
-
                         var range = data.AsList().GetRange(indx, amountToGrab);
-                        string insert = "INSERT INTO [main].[SUPERHEROES] ([NAME], [IDENTITY], [BIRTHPLACE], [PUBLISHER], [HEIGHT], [WEIGHT], [GENDER], [APPEARANCE], [EYE], [HAIR], [STRENGTH], [INTELLIGENCE]) VALUES ";
-                        foreach(var item in range)
+                        //Initial statement
+                        string insert = SuperHeroDatabaseBroker.InsertIntoPortion;
+                        //Append each in our range to the end of this statement
+                        foreach (var item in range)
                         {
                             SuperHero hero = SuperheroDBFactory.Get(item);
                             if (hero.Valid)
-                                insert += $"\r\n {SuperHeroDatabaseBroker.ToInsertValuesPortion(hero)},";
+                                insert += $"\r\n {SuperHeroDatabaseBroker.InsertValuesPortion(hero)},";
                         }
+                        //Remove the trailing ,
                         insert = insert[..^1];
+                        //Push to db
                         await ExecuteSQLAsync(insert);
+                        //Increment and report to the UI
                         indx += amountToGrab;
                         progress?.Report(amountToGrab);
                     }
-
                     toReturn = true;
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex.Message);
+                    toReturn = false;
                 }               
             });
             
             return toReturn;
-        }
-
-        private const string CREATE = "CREATE TABLE IF NOT EXISTS [SUPERHEROES] " +
-            "([ID] INTEGER NOT NULL UNIQUE, [NAME] TEXT, [IDENTITY] TEXT, [BIRTHPLACE] TEXT, [PUBLISHER] TEXT, [HEIGHT] TEXT, [WEIGHT] TEXT, [GENDER] TEXT, [APPEARANCE] TEXT, [EYE] TEXT, [HAIR] TEXT, [STRENGTH] TEXT, [INTELLIGENCE] TEXT, PRIMARY KEY([ID] AUTOINCREMENT))";
+        }      
     }
 }
