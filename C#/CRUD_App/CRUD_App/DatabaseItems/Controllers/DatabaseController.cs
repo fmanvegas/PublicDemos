@@ -1,26 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 using Common;
 using CRUD_App.DatabaseItems.Interfaces;
+using CRUD_App.Extensions;
 using CRUD_App.Misc;
+using SuperheroDatabaseCreator;
 
 namespace CRUD_App.DatabaseItems.Controllers
 {
+    public enum AppState { Normal, Editing, Adding }
+
     public class DatabaseController : PropChanged
     {
         private readonly IDatabaseOperations _dbService;
-        private bool dBFound;
+        private bool _dBFound;
         private string _message;
         private ObservableCollection<SuperHero> _superHeroes;
         private SuperHero _selectedSuperHero;
-
+        private SuperHero _tempSuperHero;
+        private string _filerText = string.Empty;
+        private AppState _state = AppState.Normal;
 
         public DatabaseController(IDatabaseOperations dbService)
         {
@@ -35,14 +38,19 @@ namespace CRUD_App.DatabaseItems.Controllers
             CreateDatabaseCommand = new Command(CreateDatabase);
             PullAllDatabaseCommand = new Command(PullAllAction);
             DeleteSuperHeroCommand = new DeleteSuperHeroCommand(DeleteSuperHeroAsync);
-            EditSuperHeroCommand = new Command(PullAllAction);
+
+            CancelEditCommand = new Command(() => State = AppState.Normal);
+
+            EditSuperHeroCommand = new DeleteSuperHeroCommand(EditSuperHeroAsync);            
+            AddSuperHeroCommand = new Command(AddSuperHeroAsync);
+
             PurgeDatabaseCommand = new Command(PullAllAction);
 
             if (DBFound)
                 PullAllAction();
         }
 
-        private string _filerText = string.Empty;
+      
 
         public string FilterText
         {
@@ -65,21 +73,19 @@ namespace CRUD_App.DatabaseItems.Controllers
             };
         }
 
-
-        public bool DBFound { get => dBFound; set { dBFound = value; OnPropertyChanged(); } }
+        public AppState State { get => _state; set { _state = value; OnPropertyChanged(); } }
+        public bool DBFound { get => _dBFound; set { _dBFound = value; OnPropertyChanged(); } }
         public string Message { get => _message; set { _message = value; OnPropertyChanged(); } }
 
         public ObservableCollection<SuperHero> SuperHeroes { get => _superHeroes; set { _superHeroes = value; OnPropertyChanged(); } }
 
-
-        public SuperHero SelectedSuperHero
-        {
-            get => _selectedSuperHero;
-            set { _selectedSuperHero = value; OnPropertyChanged(); }
-        }
-
-
+        public SuperHero SelectedSuperHero { get => _selectedSuperHero; set { _selectedSuperHero = value; OnPropertyChanged(); } }
+        public SuperHero TempSuperHero { get => _tempSuperHero; set { _tempSuperHero = value; OnPropertyChanged(); } }
         public SuperheroDatabaseCreator.Creator DBCreator { get; set; }
+
+
+
+
 
         public ICommand ClearFilterCommand { get; }
         public ICommand CreateDatabaseCommand { get; }
@@ -87,13 +93,15 @@ namespace CRUD_App.DatabaseItems.Controllers
         public ICommand DeleteSuperHeroCommand { get; }
         public ICommand EditSuperHeroCommand { get; }
         public ICommand PurgeDatabaseCommand { get; }
+        public ICommand AddSuperHeroCommand { get; }
+        public ICommand CancelEditCommand { get; }
 
 
         private async Task CreateDatabase()
         {
             DBFound = await DBCreator.Create();
 
-            if (!dBFound)
+            if (!_dBFound)
                 return;
 
             if (DBFound)
@@ -106,21 +114,12 @@ namespace CRUD_App.DatabaseItems.Controllers
                 SuperHeroes = new(result);
         }
 
-        public async Task<T> GetAsync<T>(int id)
+        public async Task<T>? GetAsync<T>(int id)
         {
             var result = await _dbService.GetAsync<T>(id);
             return result;
         }
-
-
-        public async Task DeleteIDAsync(int id)
-        {
-            var count = await _dbService.DeleteAsync(id);
-            Message = $"{count} SuperHeroes Deleted";
-            PullAllAction();
-        }
-
-
+               
         public async void DeleteSuperHeroAsync(SuperHero hero)
         {
             var count = await _dbService.DeleteAsync(hero);
@@ -130,7 +129,40 @@ namespace CRUD_App.DatabaseItems.Controllers
                 Message = $"{hero.Name} Deleted";
             }
         }
+        public async void EditSuperHeroAsync(SuperHero hero)        
+        {            
+            if (_state != AppState.Editing)
+            {
+                State = AppState.Editing;
+                TempSuperHero = hero.Clone();
+                return;
+            }
 
-        public async Task UpdateAsync<T>(int id, T obj) => await _dbService.UpdateAsync(id, obj);
+            await _dbService.UpdateAsync(TempSuperHero);
+            State = AppState.Normal;
+
+            Message = $"{TempSuperHero} Updated";
+
+            PullAllAction();
+            SelectedSuperHero = TempSuperHero;
+        }
+        public async void AddSuperHeroAsync()
+        {
+            if (_state != AppState.Adding)
+            {
+                State = AppState.Adding;
+                TempSuperHero = new();
+                return;
+            }
+
+            await _dbService.Insert(TempSuperHero);
+            
+            SuperHeroes.Add(TempSuperHero);
+            SelectedSuperHero = TempSuperHero;
+
+            Message = $"{TempSuperHero} Added";
+
+            State = AppState.Normal;
+        }
     }
 }

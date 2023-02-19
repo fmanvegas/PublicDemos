@@ -73,7 +73,7 @@ namespace CRUD_App.DatabaseItems.Brokers
             return (List<T>)results;
         }
 
-        public override async Task<T>? GetAsync<T>(int id)
+        public override async Task<T> GetAsync<T>(int id)
         {
             var sql = SuperheroDatabaseCreator.SuperHeroDatabaseBroker.SelectSql(id);
             var results = await dbConnection.QueryAsync<T>(sql);
@@ -94,23 +94,27 @@ namespace CRUD_App.DatabaseItems.Brokers
             await dbConnection.ExecuteAsync($"{insert} {values}");
         }
 
-        public override async Task UpdateAsync<T>(int id, T value)
+        public override async Task UpdateAsync<T>(T value)
         {
             if (value is not SuperHero hero)
                 return;
 
-            var insert = SuperheroDatabaseCreator.SuperHeroDatabaseBroker.UpdatePortion;
-            var values = SuperheroDatabaseCreator.SuperHeroDatabaseBroker.InsertValuesPortion(hero);
-
-            await dbConnection.ExecuteAsync($"{insert} {values}");
+            var sql = SuperheroDatabaseCreator.SuperHeroDatabaseBroker.UpdateSql(hero);
+            await dbConnection.ExecuteAsync(sql);
         }
 
         public override async Task<int> DeleteAsync<T>(T value)
         {
-            if (value is not SuperHero hero)
+            string sql = string.Empty;
+
+            if (value is int id)
+                sql = SuperheroDatabaseCreator.SuperHeroDatabaseBroker.DeleteSql(id);
+            else if (value is SuperHero hero)
+                sql = SuperheroDatabaseCreator.SuperHeroDatabaseBroker.DeleteSql(hero);
+
+            if (string.IsNullOrEmpty(sql))
                 return 0;
 
-            var sql = SuperheroDatabaseCreator.SuperHeroDatabaseBroker.DeleteSql(hero);
             return await dbConnection.ExecuteAsync(sql);          
         }
     }

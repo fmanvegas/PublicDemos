@@ -36,6 +36,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <GroupBox BorderThickness="0">
@@ -148,12 +149,47 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+
+                    <UniformGrid Grid.Row="2" Rows="1">
+                        <Button Content="Edit Selected" 
+                                CommandParameter="{Binding DB.SelectedSuperHero}"
+                                Command="{Binding DB.EditSuperHeroCommand}"/>
+                        
+                        <Button Content="Add New"
+                                Command="{Binding DB.AddSuperHeroCommand}"/>
+                    </UniformGrid>
                 </Grid>
             </GroupBox>
 
             <!--Right side display-->
             <Border Grid.Column="1" CornerRadius="5" Margin="5,5,5,5">
-                <views:SuperHeroViewControl DataContext="{Binding DB}"/>
+                <Grid>
+                    <views:SuperHeroViewControl DataContext="{Binding DB}">
+                        <views:SuperHeroViewControl.Style>
+                            <Style TargetType="UserControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding State}" Value="Normal">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </views:SuperHeroViewControl.Style>
+                    </views:SuperHeroViewControl>
+
+                    <views:AddEditSuperHeroUC DataContext="{Binding DB}">
+                        <views:AddEditSuperHeroUC.Style>
+                            <Style TargetType="UserControl">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding State}" Value="Normal">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </views:AddEditSuperHeroUC.Style>
+                    </views:AddEditSuperHeroUC>
+                </Grid>
             </Border>
         </Grid>
 

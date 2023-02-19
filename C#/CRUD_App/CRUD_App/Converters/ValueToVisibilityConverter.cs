@@ -20,11 +20,13 @@ namespace CRUD_App.Converters
                 if (value is string sVal && !string.IsNullOrEmpty(sVal) ||
                     (value is bool bVal && bVal) ||
                     (value is int iVal && iVal > 0))
-                {
-                    
+                {                    
                     result = Visibility.Visible;
                 }
             }
+
+            if (parameter is not null)
+                result = result == Visibility.Visible ? Visibility.Collapsed: Visibility.Visible;
 
             return result;
         }

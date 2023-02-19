@@ -132,13 +132,7 @@
             </Grid>
         </Grid>
 
-        <!--Controls-->
-        <UniformGrid Grid.Row="2" Rows="1">
-            <Button Content="Edit"/>
-            <Button Content="Delete" 
-                    CommandParameter="{Binding SelectedSuperHero}"
-                    Command="{Binding DeleteSuperHeroCommand}"
-                    />
-        </UniformGrid>
+        <Button Grid.Row="1" Content="Delete" CommandParameter="{Binding SelectedSuperHero}" Command="{Binding DeleteSuperHeroCommand}"
+                />
     </Grid>
 </UserControl>

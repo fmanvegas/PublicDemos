@@ -15,6 +15,6 @@ namespace CRUD_App.DatabaseItems.Brokers
         public abstract Task<T>? GetAsync<T>(int id);
         
         public abstract Task Insert<T>(T value);
-        public abstract Task UpdateAsync<T>(int id, T value);
+        public abstract Task UpdateAsync<T>(T value);
     }
 }

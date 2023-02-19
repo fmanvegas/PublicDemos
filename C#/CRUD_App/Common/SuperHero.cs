@@ -45,6 +45,8 @@ namespace Common
         public string Strength { get; set; } = string.Empty;
         public string Intelligence { get; set; } = string.Empty;
 
+        public int Id { get; set; }
+
         public override string ToString() => Name;
     }
 }

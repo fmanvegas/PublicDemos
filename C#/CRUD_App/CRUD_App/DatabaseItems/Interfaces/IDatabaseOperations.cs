@@ -14,7 +14,8 @@ namespace CRUD_App.DatabaseItems.Interfaces
         Task<int> DeleteAsync(int id);
         Task<int> DeleteAsync<T>(T value);
 
-        Task UpdateAsync<T>(int id, T value);
+        Task UpdateAsync<T>(T value);
+
         Task Insert<T>(T value);
     }
 }

@@ -18,6 +18,27 @@ namespace SuperheroDatabaseCreator
         public static string DeleteSql(SuperHero h) => $"DELETE FROM [main].[SUPERHEROES] WHERE [Name]='{h.Name}' AND [IDENTITY]='{h.Identity}' AND [PUBLISHER]='{h.Publisher}' AND [GENDER]='{h.Gender}' AND [EYE]='{h.Eye}' AND [HAIR]='{h.Hair}'";
         public static string DeleteSql(int id) => $"DELETE FROM [main].[SUPERHEROES] WHERE [Id]='{id}'";
 
+        public static string UpdateSql(SuperHero h) => $"UPDATE [main].[SUPERHEROES] SET  {BuildUpdateSetToValues(h)}  WHERE [Id] = '{h.Id}'";
+
+        /// <summary>
+        /// Get all property names and values for updating
+        /// </summary>
+        /// <param name="h"></param>
+        /// <returns></returns>
+        public static string BuildUpdateSetToValues(SuperHero h)
+        {
+            string updateAllProperties = string.Empty;
+
+            var properties = h.GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            foreach (var property in properties)
+            {
+                if (property.Name.Equals("Id"))
+                    continue;
+
+                updateAllProperties += $" [{property.Name}] = '{property.GetValue(h)}',";
+            }
+            return updateAllProperties[..^1];
+        }
 
         public const string CREATE = "CREATE TABLE IF NOT EXISTS [SUPERHEROES] " +
           "([ID] INTEGER NOT NULL UNIQUE, " +
